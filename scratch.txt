@@ -14,3 +14,4 @@ Test accuracy: 0.735603697116
 
 Many missing values, average density per column is 0.66.
 
+It seems to be the case that the log_loss scoring in GridSearchCV does not work, too well.
