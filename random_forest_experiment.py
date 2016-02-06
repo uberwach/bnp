@@ -61,7 +61,7 @@ print "Test accuracy: {}".format(best_clf.score(X_test, y_test))
 X_holdout, _, ids = prepare_data("./data/test.csv")
 y_submission = best_clf.predict_proba(X_holdout)[:, 1]
 
-df_result = pd.DataFrame({"ID": ids, "PredicatedProb": y_submission})
+df_result = pd.DataFrame({"ID": ids, "PredictedProb": y_submission})
 df_result.to_csv("submission.csv", index=False)
 
 # Additional experiments
