@@ -1,0 +1,57 @@
+\documentclass[pdf, 16pt]{beamer}
+\usepackage{amsmath}
+\usepackage{graphics}
+\usepackage{url}
+\usepackage{listings}
+\mode<presentation>{}
+\beamertemplatenavigationsymbolsempty
+
+\title{Kaggle: BNP}
+\author{Dat Tran, Gerrit Gruben}
+
+\begin{document}
+
+\frame{\maketitle}
+
+\begin{frame}[Problem setting]
+	\begin{itemize}
+      \item Binary classification problem. Incoming claim needs human intervention
+      y/n?
+\pause \item $131$ ($21$ categorical, $110$ real) features, $115k$ training data points. 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[Data insights]
+
+\begin{itemize}
+       \item Many missing values, average non-NaN density is around $0.66$.
+ \pause \item Categorical variables have many values $\Rightarrow$
+One-Hot-Encoding will need sparse data structures.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[Experiments]
+
+\begin{itemize}
+  \item Logistic Regression not viable, because of missing values.
+\pause \item Used Tree-models (Random Forest) to deal with it, dropped
+categorical features.
+\pause \item Split 30\% away for seperate holdout. RF without any tuning
+performs with log-loss of about $9.13$ and accuracy of $73.5\%$.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[Next steps]
+
+\begin{itemize}
+  \item Use grid search to find params, estimate log-loss from CV.
+\pause \item This RF is expected to be a first good submission (keep it for ensembling
+    later)
+\pause \item Use categorical variables, analyse feature importance.
+\end{itemize}
+
+\end{frame}
+
+
+\end{document}
