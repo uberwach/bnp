@@ -9,7 +9,7 @@ from sklearn.metrics import log_loss
 from extraction import prepare_data
 
 
-X, y = prepare_data("./data/train.csv")
+X, y, _ = prepare_data("./data/train.csv")
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.3, random_state=42)
@@ -27,4 +27,10 @@ print "Training accuracy: {}".format(rf_clf.score(X_train, y_train))
 print "Test log-loss: {}".format(log_loss(y_test, y_pred))
 print "Test accuracy: {}".format(rf_clf.score(X_test, y_test))
 
+# Prepare submission
 
+X_holdout, _, ids = prepare_data("./data/test.csv")
+y_submission = rf_clf.predict_proba(X_holdout)[:, 1]
+
+df_result = pd.DataFrame({"ID": ids, "PredicatedProb": y_submission})
+df_result.to_csv("submission.csv", index=False)

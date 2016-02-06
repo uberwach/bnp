@@ -29,14 +29,19 @@ def extract_feature_label(df):
 
 def prepare_data(path="./data/train.csv", drop_categorical=True):
     df = pd.read_csv(path)
+    ids = df['ID'].values
+    del df['ID']
 
     if drop_categorical:
         df_drop = drop_categorical_from_df(df)
         df_drop.fillna(0, inplace=True)
 
         y = df_drop['target'].values if 'target' in df.columns else None
+        # HACK
+        if 'target' in df_drop.columns:
+            del df_drop['target']
         X = extract_feature_label(df_drop)
 
-        return X, y
+        return X, y, ids
 
     return None, None # not implemented yet
