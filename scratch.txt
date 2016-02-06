@@ -9,9 +9,16 @@ Test accuracy: 0.735603697116
 
 
 131 features
-110 real
-21  categorical (num of categories seem high).
+112 real
+19  categorical (num of categories seem high).
 
 Many missing values, average density per column is 0.66.
 
-It seems to be the case that the log_loss scoring in GridSearchCV does not work, too well.
+It seems to be the case that the log_loss scoring in GridSearchCV does not work too well.
+
+Best params {'max_features': 15, 'criterion': 'entropy'}:
+Best CV score 0.704457116893:
+Training log-loss: 9.99200722163e-16
+Training accuracy: 1.0
+Test log-loss: 8.01123639673
+Test accuracy: 0.76805551506

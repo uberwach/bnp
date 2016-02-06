@@ -6,6 +6,9 @@ def drop_categorical_from_df(x):
     df = x.drop(x.columns[cat_pos], axis=1)
     return df
 
+def get_categorical_column_idx(df):
+    return [idx for idx, column in enumerate(df.columns) if df[type[df[column]] == str].any()]
+
 # transform categorical variables to numerical ones
 def transform_cats(x):
     cat_ind = x.dropna().iloc[0].values
@@ -13,7 +16,7 @@ def transform_cats(x):
     pd.get_dummies(x[cat_pos].fillna("Missing"))
     return df
 
-def extract_feature_label(df):
+def extract_features(df):
     X = df.values
     return X
 
@@ -33,7 +36,7 @@ def prepare_data(path="./data/train.csv", drop_categorical=True):
         else:
             y = None
 
-        X = extract_feature_label(df_drop)
+        X = extract_features(df_drop)
 
         return X, y, ids
 
