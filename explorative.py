@@ -8,9 +8,21 @@ def drop_categorical(x):
     df = x.drop(x.columns[cat_pos], axis=1)
     return df
 
-df = drop_categorical(df)
-df.fillna(0, inplace=True)
+df_drop = drop_categorical(df)
 
+# transform categorical variables to numerical ones
+
+def transform_cats(x):
+    cat_ind = x.dropna().iloc[0].values
+    cat_pos = [i for i in range(len(cat_ind)) if type(cat_ind[i]) == str]
+    pd.get_dummies(x[cat_pos].fillna("Missing"))
+    return df
+
+df_binary = transform_cats()
+
+df.join(test)
+
+df.fillna(0, inplace=True)
 
 def extract_feature_label(df):
     y = df['target'].values
