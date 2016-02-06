@@ -7,3 +7,10 @@ Training accuracy: 0.991127661701
 Test log-loss: 9.13206177752
 Test accuracy: 0.735603697116
 
+
+131 features
+110 real
+21  categorical (num of categories seem high).
+
+Many missing values, average density per column is 0.66.
+
