@@ -14,7 +14,7 @@ df.fillna(0, inplace=True)
 
 def extract_feature_label(df):
     y = df['target'].values
-    X = df[df.columns[1:]].values
+    X = df[df.columns[2:]].values
     return X, y
 """
 def get_categorical_columns(X):
@@ -43,5 +43,9 @@ rf_clf.fit(X_train, y_train)
 
 y_pred = rf_clf.predict(X_test)
 
-print "Training Accuracy: {}".format(log_loss(y_train, rf_clf.predict(X_train)))
+print "Training log-loss: {}".format(log_loss(y_train, rf_clf.predict(X_train)))
+print "Training accuracy: {}".format(rf_clf.score(X_train, y_train))
 print "Test log-loss: {}".format(log_loss(y_test, y_pred))
+print "Test accuracy: {}".format(rf_clf.score(X_test, y_test))
+
+

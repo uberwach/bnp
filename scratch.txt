@@ -1,0 +1,9 @@
+RF Experiment on label in training data:
+Values very good, almost perfect solution! :)
+
+RF Experiment on 70/30% Split on train.csv, Categorical filtered out
+Training log-loss: 0.306444554698
+Training accuracy: 0.991127661701
+Test log-loss: 9.13206177752
+Test accuracy: 0.735603697116
+
