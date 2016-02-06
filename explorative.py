@@ -39,6 +39,7 @@ from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.pipeline import Pipeline
+from sklearn.metrics import log_loss
 import numpy as np
 
 X, y = extract_feature_label(df)
@@ -51,5 +52,8 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 rf_clf = RandomForestClassifier(n_jobs=-1)
 rf_clf.fit(X_train, y_train)
-print "Training Accuracy: {}".format(rf_clf.score(X_train, y_train))
-print "Test Accuracy: {}".format(rf_clf.score(X_test, y_test))
+
+y_pred = rf_clf.predict(X_test)
+
+print "Training Accuracy: {}".format(log_loss(y_train, rf_clf.predict(X_train)))
+print "Test log-loss: {}".format(log_loss(y_test, y_pred))
