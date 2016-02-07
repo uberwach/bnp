@@ -1,6 +1,5 @@
 import pandas as pd
-
-from extraction import prepare_data
+import pickle
 
 def note_submission_info(msg, file_name):
     f = open("submission_history.txt", 'a')
@@ -11,9 +10,7 @@ def note_submission_info(msg, file_name):
     f.close()
 
 
-def build_submission(clf, target_file="submission.csv", trafo=None):
-    X_test, _, ids = prepare_data("./data/test.csv")
-
+def build_submission(clf, X_test, ids, target_file="submission.csv", trafo=None):
     if trafo:
         X_test = trafo.transform(X_test)
 
@@ -24,3 +21,5 @@ def build_submission(clf, target_file="submission.csv", trafo=None):
 
     df_result = pd.DataFrame({"ID": ids, "PredictedProb": y_submission})
     df_result.to_csv(target_file, index=False)
+
+    pickle.dump(clf, target_file.replace(".csv", ".model"))

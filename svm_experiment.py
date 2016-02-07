@@ -34,7 +34,7 @@ def get_feature_transform():
                   ('Polynomial Features', PolynomialFeatures(2))])
 
 if __name__ == "__main__":
-    X, y, _ = prepare_data("./data/train.csv")
+    X, y, X_holdout, ids = prepare_data("./data/train.csv")
     feature_trafo = get_feature_transform()
     X = feature_trafo.fit_transform(X, y)
 
@@ -59,5 +59,5 @@ if __name__ == "__main__":
 
     submission_name = "submission_svm_{}.csv".format(time())
     note_submission_info("Model: {}, Feature: {}".format(best_clf, feature_trafo), submission_name)
-    build_submission(best_clf, submission_name, feature_trafo)
+    build_submission(best_clf, X_holdout, ids, submission_name, feature_trafo)
 

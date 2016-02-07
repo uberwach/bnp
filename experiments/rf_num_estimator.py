@@ -1,3 +1,5 @@
+from time import time
+
 import matplotlib.pyplot as plt
 from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -11,18 +13,18 @@ def score_rf_model_k_estimators(k, X_train, y_train, X_test, y_test, hyper_param
     return rf_clf.score(X_test, y_test)
 
 if __name__ == "__main__":
-    X, y, _ = prepare_data("../data/train.csv")
+    X, y, _, _ = prepare_data("../data/", drop_categorical=False)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-    hyper_params = {}
+    hyper_params = {'max_features': 29, 'criterion': 'entropy'}
 
-    ks = range(1, 200)
+    ks = range(1, 300, 10)
     scores = [score_rf_model_k_estimators(k, X_train, y_train, X_test, y_test, hyper_params) for k in ks]
 
 
     plt.plot(ks, scores)
     plt.title("Random Forest Performance by number of estimators")
     plt.xlabel("num_estimators")
-    plt.ylabel("score")
-    plt.savefig("../rf_performance.png")
+    plt.ylabel("Accuracy")
+    plt.savefig("../images/rf_performance_{}.png".format(time()))
     plt.show()
