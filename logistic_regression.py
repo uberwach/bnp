@@ -1,23 +1,17 @@
-import pandas as pd
-
 from time import time
-import os
-from sklearn.cross_validation import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss
+from sklearn.preprocessing import OneHotEncoder
+from sklearn import pipeline
 from extraction import prepare_data
 from sklearn.grid_search import GridSearchCV
 import util
 
-# pipeline = Pipeline(steps=[OneHotEncoding(categorical_features=get_categorical_columns(X)),
-#                           RandomForestClassifier(n_jobs=-1)])
-
-
+# C = 0.05 performs the best for most experiments
 def find_cv_rf_model(X_train, y_train):
 
-    params = {'C': [0.01, 0.05, 0.001, 0.005, 0.0001, 0.0005]
-    }
-
+    # params = {'C': [0.01, 0.05, 0.001, 0.005, 0.0001, 0.0005]}
+    params = {'C': [0.05]}
     grid_cv = GridSearchCV(LogisticRegression(),
                            param_grid=params,
                            scoring='log_loss',
@@ -31,6 +25,11 @@ def find_cv_rf_model(X_train, y_train):
 if __name__ == "__main__":
     X, y, _ = prepare_data("./data/train.csv")
 
+    # hack to extract the 4 columns that are indeed
+    cat_mask = (X[0] == 0.0) | (X[0] == 1.0)
+    encoder = OneHotEncoder(categorical_features=cat_mask, sparse=False)
+    X = encoder.fit_transform(X, y)
+
     print "Run LogReg with {} data points and {} features.".format(X.shape[0], X.shape[1])
     t0 = time()
     grid_cv = find_cv_rf_model(X, y)
@@ -43,7 +42,9 @@ if __name__ == "__main__":
     print "Training log-loss: {}".format(log_loss(y, best_clf.predict_proba(X)))
     print "Training accuracy: {}".format(best_clf.score(X, y))
 
-    submission_name = "submission_lr_{}.csv".format(time())
-    util.note_submission_info("Model: {}\n\nCV: {}".format(best_clf, grid_cv), submission_name)
-    util.build_submission(best_clf, submission_name)
+    clf_pipe = pipeline.Pipeline([("One hot encoding", encoder),
+                                  ("Classifier", best_clf)])
 
+    submission_name = "submission_lr_{}.csv".format(time())
+    util.note_submission_info("Model: {}\n\nCV: {}".format(clf_pipe, grid_cv), submission_name)
+    util.build_submission(clf_pipe, submission_name)
