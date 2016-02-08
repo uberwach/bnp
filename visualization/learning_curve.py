@@ -2,40 +2,12 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.learning_curve import learning_curve
 
-
 def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
                         n_jobs=1, train_sizes=np.linspace(.1, 1.0, 10), scoring=None):
-    """
-    Generate a simple plot of the test and traning learning curve.
+    if type(train_sizes) == int:
+        train_sizes=np.linspace(.1, 1.0, train_sizes)
 
-    Parameters
-    ----------
-    estimator : object type that implements the "fit" and "predict" methods
-        An object of that type which is cloned for each validation.
-
-    title : string
-        Title for the chart.
-
-    X : array-like, shape (n_samples, n_features)
-        Training vector, where n_samples is the number of samples and
-        n_features is the number of features.
-
-    y : array-like, shape (n_samples) or (n_samples, n_features), optional
-        Target relative to X for classification or regression;
-        None for unsupervised learning.
-
-    ylim : tuple, shape (ymin, ymax), optional
-        Defines minimum and maximum yvalues plotted.
-
-    cv : integer, cross-validation generator, optional
-        If an integer is passed, it is the number of folds (defaults to 3).
-        Specific cross-validation objects can be passed, see
-        sklearn.cross_validation module for the list of possible objects
-
-    n_jobs : integer, optional
-        Number of jobs to run in parallel (default 1).
-    """
-    plt.figure()
+    plt.figure(figsize=(15, 15))
     plt.title(title)
     if ylim is not None:
         plt.ylim(*ylim)

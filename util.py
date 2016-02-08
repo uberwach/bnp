@@ -10,10 +10,7 @@ def note_submission_info(msg, file_name):
     f.close()
 
 
-def build_submission(clf, X_test, ids, target_file="submission.csv", trafo=None):
-    if trafo:
-        X_test = trafo.transform(X_test)
-
+def build_submission(clf, X_test, ids, target_file="submission.csv"):
     try:
         y_submission = clf.predict_proba(X_test)[:, 1]
     except AttributeError:

@@ -6,3 +6,7 @@ submission_1454862076.91.csv,0.53556,
 submission_svm_1454797650.95.csv,16.59284,top kek
 gbt_1454871554.68.csv,0.53343, decision stumps
 gbt_1454880151.01.csv,0.54383
+xgb_1454947186.66.csv,0.48548, without categorical
+xgb_1454949168.21.csv,0.54050, with categorical predicted Log loss: 0.45613418729
+gbt_1454949296.82.csv,0.52870, with categorical
+simple_xgboost_result.csv,0.46146,with fixed categorical
