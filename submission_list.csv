@@ -1,3 +1,8 @@
-File Name, Leaderboard performance
-crappy_grid_search_rf.csv, 0.52959
-submission_1454795909.85.csv, 0.49179
+File Name, Leaderboard performance, Comments
+crappy_grid_search_rf.csv,0.52959,
+submission_1454795909.85.csv,0.49179,without categorical features
+submission_lr_1454834290.88.csv,0.49972,without categorical features
+submission_1454862076.91.csv,0.53556,
+submission_svm_1454797650.95.csv,16.59284,top kek
+gbt_1454871554.68.csv,0.53343, decision stumps
+gbt_1454880151.01.csv,0.54383

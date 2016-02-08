@@ -10,7 +10,7 @@ from extraction import prepare_data
 from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
 import util
 
-NUM_ESTIMATORS = 70
+NUM_ESTIMATORS = 60
 
 
 def find_cv_rf_model(X_train, y_train, grid=True):
@@ -31,22 +31,26 @@ def find_cv_rf_model(X_train, y_train, grid=True):
                                   param_grid=params,
                                   scoring='roc_auc',
                                   n_jobs=7,
-                                  cv=10)
+                                  cv=10,
+                                  verbose=1)
     else:
-        param_dist = {"max_depth": [3, None],
-                      "max_features": randint(20, 400),
+        param_dist = {#"max_depth": [3, None],
+                      "max_features": randint(20, 30),
                       "min_samples_split": randint(1, 100),
-                      "min_samples_leaf": randint(1, 11),
-                      "bootstrap": [True, False],
+                      "max_leaf_nodes": randint(5, 20),
+                      # "min_samples_leaf": randint(1, 11),
+                      # "bootstrap": [True, False],
                       "criterion": ['entropy']}
 
-        n_iter_search = 30
+        n_iter_search = 5
         search_clf = RandomizedSearchCV(RandomForestClassifier(n_estimators=NUM_ESTIMATORS),
                                         param_distributions=param_dist,
                                         scoring="roc_auc",
                                         cv=10,
                                         n_jobs=7,
-                                        n_iter=n_iter_search)
+                                        n_iter=n_iter_search,
+                                        verbose=1,
+                                        random_state=42)
 
     search_clf.fit(X_train, y_train)
 
@@ -54,7 +58,7 @@ def find_cv_rf_model(X_train, y_train, grid=True):
 
 
 if __name__ == "__main__":
-    X, y, X_holdout, ids = prepare_data("./data/", drop_categorical=False)
+    X, y, X_holdout, ids = prepare_data("./data/", drop_categorical=True)
 
     # Right now we look at an extra y_train, y_test to assess the quality of our cv-estimates.
     X_train, X_test, y_train, y_test = train_test_split(
@@ -75,7 +79,7 @@ if __name__ == "__main__":
     print "Test accuracy: {}".format(best_clf.score(X_test, y_test))
 
     print "Fitting best model on whole data."
-    rf_clf = RandomForestClassifier(1000, n_jobs=7,
+    rf_clf = RandomForestClassifier(1000, n_jobs=7, verbose=1,
                                     **(grid_cv.best_params_))
     rf_clf.fit(X, y)
 

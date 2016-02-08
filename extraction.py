@@ -104,6 +104,9 @@ def prepare_data(path="./data", drop_categorical=True):
         df = df.join(df_cat_features)
         df_test = df_test.join(df_test_features)
 
+        df_test.fillna(df.mean(), inplace=True) # TODO: quickfix... some entries are NaN dunno why
+        # probably the vectorizer...
+
     # bring the features into numpy form
     X = extract_features(df)
     X_test = extract_features(df_test)

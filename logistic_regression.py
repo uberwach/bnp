@@ -8,14 +8,17 @@ from sklearn.grid_search import GridSearchCV
 import util
 
 # C = 0.05 performs the best for most experiments
-def find_cv_rf_model(X_train, y_train, pipe):
+def find_cv_rf_model(X_train, y_train):
     # params = {'C': [0.01, 0.05, 0.001, 0.005, 0.0001, 0.0005]}
-    params = {'C': [0.05]}
-    grid_cv = GridSearchCV(LogisticRegression(penalty="l1"),
+    params = {'C': [0.1, 0.05, 0.01],
+              'penalty': ['l2', 'l1']}
+
+    grid_cv = GridSearchCV(LogisticRegression(),
                            param_grid=params,
                            scoring='log_loss',
                            n_jobs=-1,
-                           cv=10)
+                           cv=8,
+                           verbose=1)
 
     grid_cv.fit(X_train, y_train)
 
