@@ -21,7 +21,6 @@ if __name__ == "__main__":
     ks = range(1, 300, 10)
     scores = [score_rf_model_k_estimators(k, X_train, y_train, X_test, y_test, hyper_params) for k in ks]
 
-
     plt.plot(ks, scores)
     plt.title("Random Forest Performance by number of estimators")
     plt.xlabel("num_estimators")
