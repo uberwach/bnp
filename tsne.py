@@ -16,7 +16,7 @@ if __name__ == "__main__":
     print B.shape
     print "Applying TSNE"
     tsne = TSNE(2)
-    tsne.fit(B[:10000])
+    tsne.fit(B)
 
     for col in M.shape[1]:
         M[:, col].tofile("./features/tsne_{}.npy".format(col))

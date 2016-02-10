@@ -71,7 +71,7 @@ def prepare_data(path="./data", drop_categorical=True):
 def load_extra_features():
 
     TRAIN_ROWS = 114321
-    ROWS = 457428
+    ROWS = 228714
     DIR_NAME = "./features/"
     file_names = filter(os.path.isfile, [DIR_NAME + name for name in os.listdir(DIR_NAME)])
 
