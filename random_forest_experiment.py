@@ -1,7 +1,3 @@
-import pandas as pd
-from time import time
-import os
-
 from scipy.stats import randint
 from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -9,11 +5,13 @@ from sklearn.metrics import log_loss
 from extraction import prepare_data
 from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
 import util
+from time import time
+import numpy as np
 
-NUM_ESTIMATORS = 60
 
 
 def find_cv_rf_model(X_train, y_train, grid=True):
+    NUM_ESTIMATORS = 50
     # scoring='log_loss' does not perform that well, estimate totally off
     # Runtime Log (to estimate experiment length)
     # |params| = 8,  cv = 5,  estimators=100:  695 seconds  (cv too low)
@@ -57,20 +55,17 @@ def find_cv_rf_model(X_train, y_train, grid=True):
     return search_clf
 
 
-if __name__ == "__main__":
-    X, y, X_holdout, ids = prepare_data("./data/", drop_categorical=True)
-
+def build_rf_submission():
+    X, y, X_holdout, ids = prepare_data("./data/", drop_categorical=False)
     # Right now we look at an extra y_train, y_test to assess the quality of our cv-estimates.
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, random_state=42)
-
     print "Run Random Forest with {} data points and {} features.".format(X_train.shape[0], X_train.shape[1])
     t0 = time()
-    grid_cv = find_cv_rf_model(X_train, y_train, grid=False) # stochastic search now
+    grid_cv = find_cv_rf_model(X_train, y_train, grid=False)  # stochastic search now
     best_clf = grid_cv.best_estimator_
     y_pred = best_clf.predict_proba(X_test)
     print "Done in %0.3fs" % (time() - t0)
-
     print "Best params {}: ".format(grid_cv.best_params_)
     print "Best CV score {}: ".format(grid_cv.best_score_)
     print "Training log-loss: {}".format(log_loss(y_train, best_clf.predict_proba(X_train)))
@@ -78,11 +73,19 @@ if __name__ == "__main__":
     print "Test log-loss: {}".format(log_loss(y_test, y_pred))
     print "Test accuracy: {}".format(best_clf.score(X_test, y_test))
 
-    print "Fitting best model on whole data."
-    rf_clf = RandomForestClassifier(1000, n_jobs=7, verbose=1,
-                                    **(grid_cv.best_params_))
+    submission_name = "submission_{}.csv".format(time())
+    util.note_submission_info("Model: {}".format(best_clf), submission_name)
+    util.build_submission(best_clf, X_holdout, ids, submission_name)
+
+
+def build_rf_features():
+    X, y, X_holdout, _ = prepare_data("./data/", drop_categorical=False)
+
+    rf_clf = RandomForestClassifier(n_estimators=200, n_jobs=-1)
     rf_clf.fit(X, y)
 
-    submission_name = "submission_{}.csv".format(time())
-    util.note_submission_info("Model: {}".format(rf_clf), submission_name)
-    util.build_submission(rf_clf, X_holdout, ids, submission_name)
+    np.vstack((rf_clf.predict_proba(X), rf_clf.predict_proba(X_holdout))).tofile("./features/rf_raw_features.npy")
+
+
+if __name__ == "__main__":
+    build_rf_features()
