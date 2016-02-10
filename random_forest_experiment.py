@@ -84,7 +84,7 @@ def build_rf_features():
     rf_clf = RandomForestClassifier(n_estimators=200, n_jobs=-1)
     rf_clf.fit(X, y)
 
-    np.vstack((rf_clf.predict_proba(X), rf_clf.predict_proba(X_holdout))).tofile("./features/rf_raw_features.npy")
+    np.vstack((rf_clf.predict_proba(X)[1], rf_clf.predict_proba(X_holdout)[1])).tofile("./features/rf_raw_features.npy")
 
 
 if __name__ == "__main__":
