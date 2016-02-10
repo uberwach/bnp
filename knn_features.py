@@ -1,19 +1,19 @@
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
-from extraction import prepare_data, get_int_feature_columns
+from extraction import prepare_data
 import numpy as np
 
 SEED = 42
 if __name__ == "__main__":
     X, y, X_holdout, ids = prepare_data("./data", drop_categorical=True)
 
+    n_rows = X.shape[0]
 
     scaler = StandardScaler()
     Z = np.vstack((X, X_holdout))
-    scaler.fit(Z)
+    Z = scaler.fit_transform(np.vstack((X, X_holdout )))
 
-    X = scaler.transform(X)
-    X_holdout = scaler.transform(X_holdout)
+    X = Z[:n_rows]
 
     for k in [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]:
         print "Fitting KNN k = {}".format(k)
