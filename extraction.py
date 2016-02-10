@@ -1,6 +1,6 @@
 import pandas as pd
-from sklearn.feature_extraction import DictVectorizer
 import os
+import numpy as np
 
 def drop_categorical_from_df(df):
     return df.drop(get_categorical_columns(), axis=1)
@@ -13,21 +13,7 @@ def get_categorical_columns():
 # the following functions returns the indices for X
 #
 def get_int_feature_columns():
-    return [ 32,  53,  61, 109] + get_categorical_columns()
-
-# transform categorical variables to numerical ones
-def transform_cats(df):
-    df_cat = df[get_categorical_columns(df)]
-    dict_data = df_cat.T.to_dict().values()
-
-    vectorizer = DictVectorizer(sparse=False)
-    features = vectorizer.fit_transform(dict_data)
-
-    df_vector = pd.DataFrame(features)
-    df_vector.columns = vectorizer.get_feature_names()
-    df_vector.index = df_cat.index
-
-    return df_vector,
+    return [ 32,  53,  61, 109] + [2, 21, 23, 29, 30, 46, 51, 55, 65, 70, 73, 74, 78, 90, 106, 109, 111, 112, 124]
 
 def extract_features(df):
     X = df.values
@@ -38,14 +24,6 @@ def drop_useless_columns_keep_ids(df):
     del df['ID']
 
     return ids
-
-def build_vector_df(df, dict_data, vectorizer):
-    df_vector = pd.DataFrame(vectorizer.transform(dict_data))
-    df_vector.columns = vectorizer.get_feature_names()
-    df_vector.index = df.index
-    df_vector.fillna(-1, inplace=True)
-
-    return df_vector
 
 def prepare_data(path="./data", drop_categorical=True):
     df_train = pd.read_csv(os.path.join(path, "train.csv"))
@@ -59,6 +37,7 @@ def prepare_data(path="./data", drop_categorical=True):
     y = df_train['target'].values
     del df_train['target']
 
+
     if drop_categorical:
         df_train = drop_categorical_from_df(df_train)
         df_test = drop_categorical_from_df(df_test)
@@ -69,7 +48,8 @@ def prepare_data(path="./data", drop_categorical=True):
         for (train_name, train_series), (test_name, test_series) in zip(df_train.iteritems(),df_test.iteritems()):
             if train_series.dtype == 'O':
                 #for objects: factorize
-                df_train[train_name], tmp_indexer = pd.factorize(df_train[train_name])
+                df_train[train_name], tmp_indexer = pd.factorize(df_train[train_name], na_sentinel=0)
+                df_test[test_name].fillna(0, inplace=True)
                 df_test[test_name] = tmp_indexer.get_indexer(df_test[test_name])
                 #but now we have -1 values (NaN)
             else:
@@ -88,3 +68,18 @@ def prepare_data(path="./data", drop_categorical=True):
 
     return X, y, X_test, test_ids
 
+def load_extra_features():
+
+    TRAIN_ROWS = 114321
+    ROWS = 457428
+    DIR_NAME = "./features/"
+    file_names = filter(os.path.isfile, [DIR_NAME + name for name in os.listdir(DIR_NAME)])
+
+    X = np.empty((ROWS, len(file_names)))
+
+    for i, file in enumerate(file_names):
+        print "Loading {}".format(file)
+        x = np.fromfile(file)
+        X[:, i] = x
+
+    return X[:TRAIN_ROWS+1], X[TRAIN_ROWS+1:]
