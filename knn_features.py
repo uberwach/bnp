@@ -9,7 +9,7 @@ if __name__ == "__main__":
 
 
     scaler = StandardScaler()
-    Z = np.vstack(X, X_holdout)
+    Z = np.vstack((X, X_holdout))
     scaler.fit(Z)
 
     X = scaler.transform(X)
