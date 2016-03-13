@@ -73,13 +73,13 @@ def load_extra_features():
     TRAIN_ROWS = 114321
     ROWS = 228714
     DIR_NAME = "./features/"
-    file_names = filter(os.path.isfile, [DIR_NAME + name for name in os.listdir(DIR_NAME)])
+    file_names = [name for name in os.listdir(DIR_NAME) if os.path.isfile(DIR_NAME + name)]
 
     X = np.empty((ROWS, len(file_names)))
 
     for i, file in enumerate(file_names):
-        print "Loading {}".format(file)
-        x = np.fromfile(file)
+        print "Loading {}".format(DIR_NAME + file)
+        x = np.fromfile(DIR_NAME + file)
         X[:, i] = x
 
-    return X[:TRAIN_ROWS], X[TRAIN_ROWS:]
+    return X[:TRAIN_ROWS], X[TRAIN_ROWS:], file_names
