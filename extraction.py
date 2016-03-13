@@ -1,6 +1,8 @@
 import pandas as pd
 import os
 import numpy as np
+from sklearn.naive_bayes import BernoulliNB
+
 
 def drop_categorical_from_df(df):
     return df.drop(get_labeled_columns(), axis=1)
@@ -83,3 +85,62 @@ def load_extra_features():
         X[:, i] = x
 
     return X[:TRAIN_ROWS], X[TRAIN_ROWS:], file_names
+
+# taken from https://www.kaggle.com/scirpus/bnp-paribas-cardif-claims-management/benouilli-naive-bayes/code
+
+def Binarize(columnName, df, features=None):
+    df[columnName] = df[columnName].astype(str)
+    if(features is None):
+        features = np.unique(df[columnName].values)
+    print(features)
+    for x in features:
+        df[columnName+'_' + x] = df[columnName].map(lambda y: 1 if y == x else 0)
+    df.drop(columnName, inplace=True, axis=1)
+    return df, features
+
+
+def MungeData(train, test):
+    todrop = ['v22', 'v112', 'v125', 'v74', 'v1', 'v110', 'v47']
+
+
+    train.drop(todrop, axis=1, inplace=True)
+    test.drop(todrop, axis=1, inplace=True)
+
+    features = train.columns[2:]
+    for col in features:
+        if((train[col].dtype == 'object')):
+            print(col)
+            train, binfeatures = Binarize(col, train)
+            test, _ = Binarize(col, test, binfeatures)
+            nb = BernoulliNB()
+            nb.fit(train[col+'_'+binfeatures].values, train.target.values)
+            train[col] = \
+                nb.predict_proba(train[col+'_'+binfeatures].values)[:, 1]
+            test[col] = \
+                nb.predict_proba(test[col+'_'+binfeatures].values)[:, 1]
+            train.drop(col+'_'+binfeatures, inplace=True, axis=1)
+            test.drop(col+'_'+binfeatures, inplace=True, axis=1)
+
+    features = train.columns[2:]
+    train[features] = train[features].astype(float)
+    test[features] = test[features].astype(float)
+    train.fillna(-999, inplace=True)
+    test.fillna(-999, inplace=True)
+    return train, test
+
+
+def get_multivariate_bernoulli_features(path="./data"):
+    df_train = pd.read_csv(os.path.join(path, "train.csv"))
+    df_test = pd.read_csv(os.path.join(path, "test.csv"))
+
+    df_train, df_test = MungeData(df_train, df_test)
+
+    y = df_train['target'].values
+    ids = df_train['ids'].values
+    del df_train['target']
+    del df_train['ids']
+
+    X = extract_features(df_train)
+    X_test = extract_features(df_test)
+
+    return X, y, X_test, ids
