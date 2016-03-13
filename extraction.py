@@ -3,17 +3,16 @@ import os
 import numpy as np
 
 def drop_categorical_from_df(df):
-    return df.drop(get_categorical_columns(), axis=1)
+    return df.drop(get_labeled_columns(), axis=1)
 
-def get_categorical_columns():
+# the columns we have to label encode
+def get_labeled_columns():
     return ['v3','v22', 'v24','v30','v31','v47','v52','v56','v66','v71','v74','v75',
-            'v79','v91', 'v107','v110','v112','v113','v125']
+            'v79','v91', 'v112','v113','v125']
 
-# 39, 63, 73, 130 int <- could be categorical, too.
-# the following functions returns the indices for X
-#
-def get_int_feature_columns():
-    return [ 32,  53,  61, 109] + [2, 21, 23, 29, 30, 46, 51, 55, 65, 70, 73, 74, 78, 90, 106, 109, 111, 112, 124]
+# additional categorical columns: 'v38', 'v62', 'v72'
+def get_cat_columns():
+    return [2, 21, 23, 29,30,46,51,55,65,70,73,74,78,90,109,110,122,37,61,71]
 
 def extract_features(df):
     X = df.values
@@ -22,6 +21,9 @@ def extract_features(df):
 def drop_useless_columns_keep_ids(df):
     ids = df['ID'].values
     del df['ID']
+
+    del df['v107']
+    del df['v110']
 
     return ids
 
@@ -49,18 +51,17 @@ def prepare_data(path="./data", drop_categorical=True):
             if train_series.dtype == 'O':
                 #for objects: factorize
                 df_train[train_name], tmp_indexer = pd.factorize(df_train[train_name], na_sentinel=0)
-                df_test[test_name].fillna(0, inplace=True)
+                df_test[test_name].fillna(-9999, inplace=True)
                 df_test[test_name] = tmp_indexer.get_indexer(df_test[test_name])
-                #but now we have -1 values (NaN)
             else:
                 #for int or float: fill NaN
                 tmp_len = len(df_train[train_series.isnull()])
                 if tmp_len>0:
-                    df_train.loc[train_series.isnull(), train_name] = train_series.mean()
+                    df_train.loc[train_series.isnull(), train_name] = -9999 #train_series.mean()
                 #and Test
                 tmp_len = len(df_test[test_series.isnull()])
                 if tmp_len>0:
-                    df_test.loc[test_series.isnull(), test_name] = train_series.mean()
+                    df_test.loc[test_series.isnull(), test_name] = -9999 #train_series.mean()
 
     # bring the features into numpy form
     X = extract_features(df_train)
@@ -69,7 +70,6 @@ def prepare_data(path="./data", drop_categorical=True):
     return X, y, X_test, test_ids
 
 def load_extra_features():
-
     TRAIN_ROWS = 114321
     ROWS = 228714
     DIR_NAME = "./features/"
@@ -82,4 +82,4 @@ def load_extra_features():
         x = np.fromfile(file)
         X[:, i] = x
 
-    return X[:TRAIN_ROWS+1], X[TRAIN_ROWS+1:]
+    return X[:TRAIN_ROWS], X[TRAIN_ROWS:]

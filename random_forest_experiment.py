@@ -1,8 +1,9 @@
 from scipy.stats import randint
-from sklearn.cross_validation import train_test_split
+from sklearn import cross_validation
+from sklearn.cross_validation import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import log_loss
-from extraction import prepare_data
+from extraction import prepare_data, load_extra_features
 from sklearn.grid_search import GridSearchCV, RandomizedSearchCV
 import util
 from time import time
@@ -79,14 +80,29 @@ def build_rf_submission():
 
 
 def build_rf_features():
-    X, y, X_holdout, _ = prepare_data("./data/", drop_categorical=False)
+    X, y, X_holdout, ids = prepare_data("./data/", drop_categorical=False)
 
-    rf_clf = RandomForestClassifier(n_estimators=200, n_jobs=-1)
-    rf_clf.fit(X, y)
+    X1, X2 = load_extra_features()
+    X = np.hstack((X, X1))
+    X_holdout = np.hstack((X_holdout, X2))
 
-    M = rf_clf.predict_proba(np.vstack((X, X_holdout)))[:, 1]
-    M.tofile("./features/rf_raw_features.npy")
+    X, X_test, y, y_test = train_test_split(X, y, test_size=0.2)
 
+    t0 = time()
+    for max_depth in range(1, 15):
+        print "max depth {}".format(max_depth)
+        rf_clf = RandomForestClassifier(n_estimators=200, max_depth=max_depth, criterion="entropy", n_jobs=-1)
+        rf_clf.fit(X, y)
 
+        print "Done in %0.3fs" % (time() - t0)
+        print log_loss(y_test, rf_clf.predict_proba(X_test))
+        #cv_scores = cross_val_score(rf_clf, X, y, scoring='log_loss',  n_jobs=1, cv=5, verbose=1)
+        #print "CV log-loss {} (+- {})".format(cv_scores.mean(), cv_scores.std())
+    # M = rf_clf.predict_proba(np.vstack((X, X_holdout)))[:, 1]
+    # M.tofile("./features/rf_raw_features.npy")
+
+    #submission_name = "submission_{}.csv".format(time())
+    #util.note_submission_info("Model: {}".format(rf_clf), submission_name)
+    #util.build_submission(rf_clf, X_holdout, ids, submission_name)
 if __name__ == "__main__":
     build_rf_features()

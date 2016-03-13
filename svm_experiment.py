@@ -3,7 +3,7 @@ from time import time
 from sklearn.grid_search import GridSearchCV
 from sklearn.svm import SVC
 from sklearn.preprocessing import OneHotEncoder
-from extraction import prepare_data, get_int_feature_columns
+from extraction import prepare_data, get_cat_columns()
 from util import note_submission_info, build_submission
 import numpy as np
 
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     X, y, X_holdout, ids = prepare_data("./data", drop_categorical=False)
 
     # prepare the categorical columns
-    cat_idx = get_int_feature_columns()
+    cat_idx = get_cat_columns()
     encoder = OneHotEncoder(categorical_features=cat_idx, sparse=True, handle_unknown="ignore")
     n_rows = X.shape[0]
 
