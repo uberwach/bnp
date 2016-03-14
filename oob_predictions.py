@@ -1,9 +1,11 @@
 from sklearn.cross_validation import StratifiedKFold
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.svm import SVC
+from sklearn.pipeline import make_pipeline
 
 from extraction import prepare_data, get_cat_columns
 
@@ -52,14 +54,33 @@ def build_svm_features():
     X, y, X_test, _ = get_sparse_onehot_features()
 
     print "Getting OOB predictions from linear SVM"
-    clf = SVC(kernel="linear", probability=True, verbose=True)
-    X_1, X_2 = build_base_features(clf, X, X_test, y, 10)
+    clf = SVC(kernel="linear", probability=True)
+    X_1, X_2 = build_base_features(clf, X, X_test, y, 5)
     np.vstack((X_1, X_2)).tofile('./features/linear_svm_oob.npy')
 
     print "Getting OOB predictions from rbf SVM"
-    clf = SVC(kernel="rbf", probability=True, verbose=True)
-    X_1, X_2 = build_base_features(clf, X, X_test, y, 10)
+    clf = SVC(kernel="rbf", probability=True)
+    X_1, X_2 = build_base_features(clf, X, X_test, y, 5)
     np.vstack((X_1, X_2)).tofile('./features/rbf_svm_oob.npy')
+
+
+
+def build_logreg_features():
+    X, y, X_test, _ = get_sparse_onehot_features()
+
+    print "Getting OOB predictions for LogReg"
+    clf = make_pipeline(StandardScaler(with_mean=False), LogisticRegression(C=0.25, penalty='l1'))
+    X_1, X_2 = build_base_features(clf, X, X_test, y, 10)
+    np.vstack((X_1, X_2)).tofile('./features/logreg_oob.npy')
+
+def build_extratrees_features():
+    X, y, X_holdout, _ = prepare_data("./data", drop_categorical=False)
+
+    print "Getting OOB predictions from ExtraTreesClassifier"
+    clf = ExtraTreesClassifier(n_estimators=500, max_features= 50,criterion= 'entropy',min_samples_split= 5,
+                               max_depth= 50, min_samples_leaf= 5, n_jobs=4)
+    X_1, X_2 = build_base_features(clf, X, X_holdout, y, 10)
+    np.vstack((X_1, X_2)).tofile('./features/extra_trees_oob.npy')
 
 def get_sparse_onehot_features():
     X, y, X_holdout, ids = prepare_data("./data", drop_categorical=False)
@@ -74,5 +95,7 @@ def get_sparse_onehot_features():
     return X.tocsr(), y, X_holdout.tocsr(), ids
 
 if __name__ == "__main__":
-    build_knn_features()
-    build_svm_features()
+    # build_knn_features()
+    # build_svm_features()
+    # build_logreg_features()
+    # build_extratrees_features()
