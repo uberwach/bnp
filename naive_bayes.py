@@ -1,4 +1,4 @@
-from extraction import prepare_data, get_int_feature_columns
+from extraction import prepare_data, get_cat_columns
 from sklearn.naive_bayes import MultinomialNB
 from sklearn import cross_validation
 
@@ -10,7 +10,7 @@ SEED = 42
 if __name__ == "__main__":
     X, y, X_holdout, ids = prepare_data("./data", drop_categorical=False)
 
-    cat_idx = get_int_feature_columns()
+    cat_idx = get_cat_columns()
     X, X_holdout = X[:, cat_idx], X_holdout[:, cat_idx]
     X = X + 1
     X_holdout = X_holdout + 1

@@ -1,12 +1,15 @@
 from sklearn.cross_validation import StratifiedKFold
 import numpy as np
-from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier, AdaBoostClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.svm import SVC
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import log_loss
+from sklearn.tree import DecisionTreeClassifier
+
 from extraction import prepare_data, get_cat_columns, get_multivariate_bernoulli_features
 
 
@@ -103,6 +106,28 @@ def build_random_forest_features_on_bernoulli():
     X_1, X_2 = build_base_features(clf, X, X_holdout, y, 5)
     np.vstack((X_1, X_2)).tofile('./features/rf_bf_oob.npy')
 
+
+def build_adaboost_features():
+    X, y, X_test, _ = get_sparse_onehot_features()
+
+    print "Getting OOB predictions for AdaBoost"
+    clf = AdaBoostClassifier(DecisionTreeClassifier(max_depth=1), n_estimators=200, random_state=42)
+    X_1, X_2 = build_base_features(clf, X, X_test, y, 5)
+    np.vstack((X_1, X_2)).tofile('./features/adaboost_oob.npy')
+
+def build_multinomial_nb_features():
+    X, y, X_holdout, _ = prepare_data("./data", drop_categorical=False)
+
+    cat_idx = get_cat_columns()
+    X, X_holdout = X[:, cat_idx], X_holdout[:, cat_idx]
+    X = X + 1
+    X_holdout = X_holdout + 1
+
+    print "Getting OOB predictions from mNB"
+    clf = MultinomialNB(alpha=1)
+    X_1, X_2 = build_base_features(clf, X, X_holdout, y, 10)
+    np.vstack((X_1, X_2)).tofile('./features/NB_oob.npy')
+
 def get_sparse_onehot_features():
     X, y, X_holdout, ids = prepare_data("./data", drop_categorical=False)
     cat_idx = get_cat_columns()
@@ -120,4 +145,6 @@ if __name__ == "__main__":
     # build_svm_features()
     # build_logreg_features()
     # build_extratrees_features()
-    build_random_forest_features_on_bernoulli()
+    # build_random_forest_features_on_bernoulli()
+    # build_adaboost_features()
+    build_multinomial_nb_features()

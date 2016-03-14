@@ -1,8 +1,5 @@
-from sklearn.manifold import TSNE
 from sklearn.decomposition import TruncatedSVD
 import numpy as np
-
-
 from extraction import prepare_data
 
 if __name__ == "__main__":
@@ -11,15 +8,9 @@ if __name__ == "__main__":
     A = np.vstack((X, X_holdout))
 
     print "Applying SVD"
-    svd = TruncatedSVD(50)
+    svd = TruncatedSVD(20)
     B = svd.fit_transform(A)
     print B.shape
-    print "Applying TSNE"
-    tsne = TSNE(2)
-    tsne.fit(B)
 
-    for col in M.shape[1]:
-        M[:, col].tofile("./features/tsne_{}.npy".format(col))
-
-
-
+    for col in xrange(B.shape[1]):
+        B[:, col].tofile("./features/svd_{}.npy".format(col))
