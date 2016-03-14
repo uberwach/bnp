@@ -136,9 +136,10 @@ def get_multivariate_bernoulli_features(path="./data"):
     df_train, df_test = MungeData(df_train, df_test)
 
     y = df_train['target'].values
-    ids = df_train['ids'].values
+    ids = df_test['ID'].values
     del df_train['target']
-    del df_train['ids']
+    del df_train['ID']
+    del df_test['ID']
 
     X = extract_features(df_train)
     X_test = extract_features(df_test)
